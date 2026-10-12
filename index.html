@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="h-full w-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Monorail of Jojo - Iron Chemistry (Language Edition)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        monorail: {
+                            orange: '#ff6b00',
+                            yellow: '#ffd000',
+                            blue: '#00e5ff',
+                            purple: '#a855f7',
+                            dark: '#0a0d14',
+                            panel: '#121824',
+                            border: '#222d42'
+                        }
+                    },
+                    fontFamily: {
+                        gaming: ['Teko', 'Cairo', 'sans-serif'],
+                        body: ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #07090e;
+            color: #ffffff;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+        .font-gaming { font-family: 'Teko', 'Cairo', sans-serif; letter-spacing: 1px; }
+        .bg-grid-pattern {
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .fn-card { transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
+        .fn-card:hover { transform: translateY(-5px) scale(1.02); filter: brightness(1.15); }
+        .fn-card-selected { transform: translateY(-6px) scale(1.04) !important; box-shadow: 0 0 25px rgba(255, 208, 0, 0.9) !important; border-color: #ffd000 !important; }
+        .glow-orange { box-shadow: 0 0 20px rgba(255, 107, 0, 0.5); }
+        @media screen and (orientation: portrait) and (max-width: 768px) { #portrait-warning { display: flex !important; } }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #0a0d14; }
+        ::-webkit-scrollbar-thumb { background: #ff6b00; border-radius: 4px; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden bg-grid-pattern flex flex-col justify-between p-2">
+
+    <div id="portrait-warning" class="fixed inset-0 bg-black/95 z-[100] hidden flex-col items-center justify-center p-6 text-center backdrop-blur-md">
+        <i class="fa-solid fa-train-subway text-6xl text-monorail-orange animate-bounce mb-4"></i>
+        <h2 class="text-3xl font-black text-monorail-yellow mb-2 font-gaming">Rotate Your Device to Landscape!</h2>
+        <p class="text-gray-300 text-sm max-w-sm">To play **Monorail of Jojo**, please rotate your iPad/phone horizontally!</p>
+    </div>
+
+    <script>
+        const audioFX = {
+            playCustomSound(type) {
+                let audioUrl = '';
+                if(type === 'success') {
+                    audioUrl = 'luxus.mp3'; // حط رابط أو اسم ملف صوت "يا ولد يا لوكسس"
+                } else if(type === 'error') {
+                    audioUrl = 'zero.mp3';  // حط رابط أو اسم ملف صوت "خد صفر"
+                }
+                
+                if(audioUrl) {
+                    let audio = new Audio(audioUrl);
+                    audio.play().catch(() => {
+                        // لو الملف مش موجود بيشغل نغمة احتياطية
+                        if(type === 'success') this.playFallbackSuccess();
+                        else this.playFallbackError();
+                    });
+                }
+            },
+            playFallbackSuccess() {
+                try {
+                    let ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    let now = ctx.currentTime;
+                    let osc = ctx.createOscillator();
+                    let gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    osc.frequency.setValueAtTime(1046.50, now + 0.3);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                    osc.connect(gain); gain.connect(ctx.destination);
+                    osc.start(); osc.stop(now + 0.5);
+                } catch(e){}
+            },
+            playFallbackError() {
+                try {
+                    let ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    let now = ctx.currentTime;
+                    let osc = ctx.createOscillator();
+                    let gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.setValueAtTime(110, now + 0.2);
+                    gain.gain.setValueAtTime(0.35, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.connect(gain); gain.connect(ctx.destination);
+                    osc.start(); osc.stop(now + 0.4);
+                } catch(e){}
+            }
+        };
+    </script>
+
+    <header class="h-14 bg-monorail-panel border border-monorail-border rounded-xl px-3 flex items-center justify-between shadow-xl z-20">
+        <div class="flex items-center gap-3">
+            <div class="bg-gradient-to-r from-monorail-orange to-monorail-yellow text-black px-3 py-1 rounded-lg font-black font-gaming text-lg flex items-center gap-2 shadow-lg">
+                <i class="fa-solid fa-train-subway text-xl animate-pulse"></i> Monorail of Jojo 🚆
+            </div>
+            <div class="flex items-center gap-2 text-xs font-bold bg-black/60 px-3 py-1.5 rounded-lg border border-gray-800">
+                <span class="text-gray-400">XP:</span>
+                <span id="scoreText" class="text-monorail-yellow font-black text-base font-gaming">0</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <div class="bg-black/80 border border-gray-700 rounded-lg p-0.5 flex items-center gap-1">
+                <button id="modeBtnOxRed" onclick="switchGameMode('oxred')" class="px-3 py-1 rounded-md text-xs font-black transition font-gaming bg-monorail-orange text-black shadow">
+                    <i class="fa-solid fa-fire-flame-curved"></i> Ox & Red Mode
+                </button>
+                <button id="modeBtnReactions" onclick="switchGameMode('reactions')" class="px-3 py-1 rounded-md text-xs font-black transition font-gaming text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-flask"></i> Reactions (Prep / Uses)
+                </button>
+            </div>
+
+            <div id="stationsBar" class="flex items-center gap-1 md:gap-1.5 bg-black/70 px-2.5 py-1 rounded-lg border border-gray-800 text-[10px] md:text-xs font-bold">
+                <span class="font-black text-monorail-orange font-gaming text-sm">START!</span>
+                <div id="st-1" class="px-2 py-0.5 rounded border border-gray-700 bg-gray-900 text-gray-400">St 1: Fe</div>
+                <div id="st-2" class="px-2 py-0.5 rounded border border-gray-700 bg-gray-900 text-gray-400">St 2: FeO</div>
+                <div id="st-3" class="px-2 py-0.5 rounded border border-gray-700 bg-gray-900 text-gray-400">St 3: Fe₃O₄</div>
+                <div id="st-4" class="px-2 py-0.5 rounded border border-gray-700 bg-gray-900 text-gray-400">St 4: Fe₂O₃</div>
+                <span class="font-black text-red-500 font-gaming text-sm">END 🚂</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button onclick="toggleRulesModal()" class="bg-gray-800 hover:bg-gray-700 text-monorail-blue border border-monorail-blue/40 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                <i class="fa-solid fa-book-open"></i> Rules
+            </button>
+            <button onclick="resetGameTurn()" class="bg-gray-800 hover:bg-gray-700 text-monorail-yellow border border-monorail-yellow/40 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                <i class="fa-solid fa-rotate"></i> Reset
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 my-2 grid grid-cols-12 gap-2 overflow-hidden relative">
+        <section class="col-span-12 bg-monorail-panel border border-monorail-border rounded-xl p-3 flex flex-col justify-between relative">
+            <div id="stepBanner" class="bg-black/70 border border-monorail-yellow/60 rounded-xl p-2 text-center text-xs font-bold text-monorail-yellow flex items-center justify-center gap-2 shadow-lg">
+                <i class="fa-solid fa-train-subway animate-bounce text-base"></i>
+                <span id="stepText">Step 1: Select any Iron Compound Card below to start!</span>
+            </div>
+
+            <!-- MODE 1 -->
+            <div id="oxredArena" class="flex-1 my-2 grid grid-cols-3 gap-3 items-center">
+                <div class="flex flex-col items-center">
+                    <span class="text-[11px] font-bold text-gray-400 mb-1">Reactant Compound:</span>
+                    <div id="reactantSlot" class="w-full h-36 bg-black/60 border-2 border-dashed border-gray-700 rounded-xl flex flex-col items-center justify-center p-2 text-center relative transition">
+                        <i class="fa-solid fa-download text-3xl text-gray-600 mb-1 animate-bounce"></i>
+                        <span class="text-xs text-gray-500 font-bold">Select card from tray</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center">
+                    <span class="text-[11px] font-bold text-monorail-orange mb-1 font-gaming text-sm">Reaction Weapons:</span>
+                    <div id="agentZone" class="w-full h-36 bg-black/60 border-2 border-dashed border-gray-700 rounded-xl p-2 flex flex-col items-center justify-center text-center">
+                        <div id="typeBtns" class="flex flex-col gap-2 w-full px-2 hidden">
+                            <button onclick="handleChooseType('reducing')" class="w-full bg-monorail-blue text-black font-black text-xs py-2 rounded-lg font-gaming">REDUCING AGENTS ⚡</button>
+                            <button onclick="handleChooseType('oxidizing')" class="w-full bg-monorail-orange text-black font-black text-xs py-2 rounded-lg font-gaming">OXIDIZING AGENTS 🔥</button>
+                        </div>
+                        <div id="agentConfig" class="w-full hidden text-center space-y-1.5"></div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center">
+                    <span class="text-[11px] font-bold text-monorail-yellow mb-1">Predict Product:</span>
+                    <div id="predictionSlot" class="w-full h-36 bg-black/60 border-2 border-dashed border-monorail-yellow/40 rounded-xl p-2 flex flex-col items-center justify-center text-center relative">
+                        <div id="predPlaceholder" class="text-xs text-gray-500">
+                            <i class="fa-solid fa-circle-question text-3xl text-monorail-yellow/40 mb-1"></i>
+                            <p>Select weapon first</p>
+                        </div>
+                        <div id="predOptions" class="grid grid-cols-2 gap-1.5 w-full hidden">
+                            <button onclick="submitPrediction('Fe')" class="bg-gray-800 text-white font-black py-2 rounded-lg text-xs font-gaming">Fe</button>
+                            <button onclick="submitPrediction('FeO')" class="bg-gray-800 text-white font-black py-2 rounded-lg text-xs font-gaming">FeO</button>
+                            <button onclick="submitPrediction('Fe3O4')" class="bg-gray-800 text-white font-black py-2 rounded-lg text-xs font-gaming">Fe₃O₄</button>
+                            <button onclick="submitPrediction('Fe2O3')" class="bg-gray-800 text-white font-black py-2 rounded-lg text-xs font-gaming">Fe₂O₃</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODE 2 -->
+            <div id="reactionsArena" class="flex-1 my-2 flex flex-col items-center justify-center hidden">
+                <div class="text-center mb-3">
+                    <h3 class="text-lg font-black text-monorail-yellow font-gaming">🧪 Iron Reactions Map (Preparation vs Uses)</h3>
+                    <p class="text-xs text-gray-300">Click any card below to view synthesis or reaction pathways!</p>
+                </div>
+            </div>
+
+            <!-- Cards Tray -->
+            <div>
+                <div class="grid grid-cols-4 gap-2.5">
+                    <div id="card-Fe" data-symbol="Fe" data-station="1" data-name="Iron Metal (Fe)" class="card-btn fn-card bg-gradient-to-b from-gray-900 to-black border-2 border-orange-500 rounded-xl p-2 flex items-center justify-between shadow-lg">
+                        <div><span class="text-[9px] bg-orange-500 text-black font-black px-1.5 py-0.5 rounded font-gaming">Station 1</span><h4 class="font-black text-base text-white font-gaming">Fe (Iron)</h4></div>
+                    </div>
+                    <div id="card-FeO" data-symbol="FeO" data-station="2" data-name="Iron(II) Oxide (FeO)" class="card-btn fn-card bg-gradient-to-b from-gray-900 to-black border-2 border-amber-500 rounded-xl p-2 flex items-center justify-between shadow-lg">
+                        <div><span class="text-[9px] bg-amber-500 text-black font-black px-1.5 py-0.5 rounded font-gaming">Station 2</span><h4 class="font-black text-base text-white font-gaming">FeO (+2)</h4></div>
+                    </div>
+                    <div id="card-Fe3O4" data-symbol="Fe3O4" data-station="3" data-name="Magnetic Iron Oxide (Fe₃O₄)" class="card-btn fn-card bg-gradient-to-b from-gray-900 to-black border-2 border-cyan-500 rounded-xl p-2 flex items-center justify-between shadow-lg">
+                        <div><span class="text-[9px] bg-cyan-500 text-black font-black px-1.5 py-0.5 rounded font-gaming">Station 3</span><h4 class="font-black text-base text-white font-gaming">Fe₃O₄</h4></div>
+                    </div>
+                    <div id="card-Fe2O3" data-symbol="Fe2O3" data-station="4" data-name="Iron(III) Oxide (Fe₂O₃)" class="card-btn fn-card bg-gradient-to-b from-gray-900 to-black border-2 border-purple-500 rounded-xl p-2 flex items-center justify-between shadow-lg">
+                        <div><span class="text-[9px] bg-purple-500 text-white font-black px-1.5 py-0.5 rounded font-gaming">Station 4</span><h4 class="font-black text-base text-white font-gaming">Fe₂O₃</h4></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <div id="reactChoiceModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-monorail-panel border-2 border-monorail-yellow rounded-2xl max-w-lg w-full p-5 text-center shadow-2xl relative">
+            <h3 id="reactModalTitle" class="text-2xl font-black text-monorail-yellow mb-2 font-gaming">Select Pathway</h3>
+            <p class="text-xs text-gray-300 mb-4">Choose synthesis (Preparation) or chemical properties (Uses):</p>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <button onclick="displayReactData('prep')" class="bg-monorail-orange text-black font-black py-3 rounded-xl text-xs font-gaming">🧪 Preparation</button>
+                <button onclick="displayReactData('use')" class="bg-monorail-blue text-black font-black py-3 rounded-xl text-xs font-gaming">⚡ Uses & Properties</button>
+            </div>
+            <button onclick="closeReactModal()" class="w-full bg-gray-800 text-white font-bold py-2 rounded-xl text-xs">Close</button>
+        </div>
+    </div>
+
+    <div id="reactResultModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-monorail-panel border-2 border-monorail-blue rounded-2xl max-w-xl w-full p-5 shadow-2xl relative text-left">
+            <h3 id="reactResultTitle" class="text-lg font-black text-monorail-blue font-gaming mb-3">Equations</h3>
+            <div id="reactResultContent" class="space-y-2 max-h-72 overflow-y-auto text-xs text-gray-200"></div>
+            <button onclick="closeReactResultModal()" class="w-full mt-4 bg-monorail-blue text-black font-black py-2 rounded-xl text-xs font-gaming">Done 🚀</button>
+        </div>
+    </div>
+
+    <div id="resultModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
+        <div id="resultBox" class="bg-monorail-panel border-2 border-monorail-orange rounded-2xl max-w-lg w-full p-5 text-center shadow-2xl relative">
+            <div id="resIcon" class="text-5xl mb-2"></div>
+            <div id="resBanner" class="text-3xl font-black mb-2 font-gaming py-2 rounded-xl"></div>
+            <div id="resDesc" class="text-xs text-gray-200 bg-black/60 p-3 rounded-xl my-3"></div>
+            <div id="resEquation" class="bg-gray-900 text-monorail-yellow font-mono text-xs p-2.5 rounded-lg mb-4"></div>
+            <button onclick="closeResultModal()" class="w-full bg-gradient-to-r from-monorail-orange to-monorail-yellow text-black font-black py-3 rounded-xl text-sm font-gaming">Next 🚀</button>
+        </div>
+    </div>
+
+    <script>
+        const gameState = { score: 0, mode: 'oxred', selectedReactant: null, agentType: null, reagent: null, tempRange: null, activeCompoundForReact: null };
+
+        const reactionsMapData = {
+            'Fe': {
+                name: 'Iron Metal (Fe)',
+                prep: ["<b>Blast Furnace:</b> Fe₂O₃ + 3CO --(>700°C)--> 2Fe + 3CO₂", "<b>Midrex Furnace:</b> Fe₂O₃ + 2CO + 2H₂ --> 2Fe + 3CO₂ + 2H₂O"],
+                use: ["<b>With Oxygen:</b> 3Fe + 2O₂ --(Heat)--> Fe₃O₄", "<b>With Steam:</b> 3Fe + 4H₂O(g) --(500°C)--> Fe₃O₄ + 4H₂↑", "<b>With Sulfur:</b> Fe + S --(Heat)--> FeS", "<b>With Chlorine:</b> 2Fe + 3Cl₂ --(Heat)--> 2FeCl₃", "<b>With Dil. Acid:</b> Fe + H₂SO₄(dil) --> FeSO₄ + H₂↑"]
+            },
+            'FeO': {
+                name: 'Iron(II) Oxide (FeO)',
+                prep: ["<b>Thermal Decomposition (no air):</b> FeC₂O₄ --(Δ)--> FeO + CO + CO₂", "<b>Reduction (400-700°C):</b> Fe₂O₃ + CO --(400-700°C)--> 2FeO + CO₂"],
+                use: ["<b>Oxidation in Air:</b> 4FeO + O₂ --(Heat)--> 2Fe₂O₃", "<b>Reduction (>700°C):</b> FeO + CO --(>700°C)--> Fe + CO₂", "<b>With Dil. HCl:</b> FeO + 2HCl(dil) --> FeCl₂ + H₂O"]
+            },
+            'Fe3O4': {
+                name: 'Magnetic Iron Oxide (Fe₃O₄)',
+                prep: ["<b>Iron with Oxygen:</b> 3Fe + 2O₂ --(Heat)--> Fe₃O₄", "<b>Iron with Steam (500°C):</b> 3Fe + 4H₂O --(500°C)--> Fe₃O₄ + 4H₂"],
+                use: ["<b>With Conc. H₂SO₄:</b> Fe₃O₄ + 4H₂SO₄(conc) --> FeSO₄ + Fe₂(SO₄)₃ + 4H₂O", "<b>Oxidation in Air:</b> 4Fe₃O₄ + O₂ --(Heat)--> 6Fe₂O₃"]
+            },
+            'Fe2O3': {
+                name: 'Iron(III) Oxide (Fe₂O₃)',
+                prep: ["<b>Thermal Decomp. of Fe(OH)₃:</b> 2Fe(OH)₃ --(>200°C)--> Fe₂O₃ + 3H₂O", "<b>Roasting Siderite:</b> 4FeCO₃ + O₂ --(Heat)--> 2Fe₂O₃ + 4CO₂"],
+                use: ["<b>Primary ore for Blast/Midrex Furnaces.</b>", "<b>Controlled reduction to produce FeO, Fe₃O₄, or Fe.</b>"]
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.card-btn').forEach(card => {
+                card.addEventListener('click', function() {
+                    const symbol = this.getAttribute('data-symbol');
+                    const station = parseInt(this.getAttribute('data-station'));
+                    const name = this.getAttribute('data-name');
+                    if(gameState.mode === 'oxred') selectCard(symbol, station, name);
+                    else openReactChoiceModal(symbol, name);
+                });
+            });
+        });
+
+        function switchGameMode(newMode) {
+            gameState.mode = newMode;
+            document.getElementById('oxredArena').classList.toggle('hidden', newMode !== 'oxred');
+            document.getElementById('reactionsArena').classList.toggle('hidden', newMode !== 'reactions');
+            resetGameTurn();
+        }
+
+        function openReactChoiceModal(symbol, name) {
+            gameState.activeCompoundForReact = symbol;
+            document.getElementById('reactModalTitle').innerText = name;
+            document.getElementById('reactChoiceModal').classList.remove('hidden');
+            document.getElementById('reactChoiceModal').classList.add('flex');
+        }
+
+        function closeReactModal() {
+            document.getElementById('reactChoiceModal').classList.add('hidden');
+            document.getElementById('reactChoiceModal').classList.remove('flex');
+        }
+
+        function displayReactData(actionType) {
+            closeReactModal();
+            const data = reactionsMapData[gameState.activeCompoundForReact];
+            if(!data) return;
+            document.getElementById('reactResultTitle').innerText = data.name + (actionType === 'prep' ? ' (Preparation)' : ' (Uses)');
+            document.getElementById('reactResultContent').innerHTML = data[actionType].map(eq => `<div class="bg-black/80 p-2.5 rounded-lg border border-gray-700 font-mono text-xs text-monorail-yellow mb-1.5">${eq}</div>`).join('');
+            document.getElementById('reactResultModal').classList.remove('hidden');
+            document.getElementById('reactResultModal').classList.add('flex');
+        }
+
+        function closeReactResultModal() {
+            document.getElementById('reactResultModal').classList.add('hidden');
+            document.getElementById('reactResultModal').classList.remove('flex');
+        }
+
+        function selectCard(symbol, stationNum, desc) {
+            gameState.selectedReactant = symbol;
+            document.querySelectorAll('.card-btn').forEach(c => c.classList.remove('fn-card-selected'));
+            document.getElementById(`card-${symbol}`).classList.add('fn-card-selected');
+            
+            const slot = document.getElementById('reactantSlot');
+            slot.innerHTML = `<span class="text-[9px] bg-monorail-orange text-black font-black px-2 py-0.5 rounded font-gaming">Station ${stationNum}</span><span class="text-3xl font-black text-white font-gaming">${symbol}</span><span class="text-[10px] text-gray-300 mt-1">${desc}</span>`;
+            document.getElementById('typeBtns').classList.remove('hidden');
+            document.getElementById('predPlaceholder').classList.remove('hidden');
+            document.getElementById('predOptions').classList.add('hidden');
+        }
+
+        function handleChooseType(type) {
+            gameState.agentType = type;
+            document.getElementById('typeBtns').classList.add('hidden');
+            const container = document.getElementById('agentConfig');
+            container.classList.remove('hidden');
+            if(type === 'reducing') {
+                container.innerHTML = `<select id="reagentSel" class="w-full bg-gray-900 border text-white text-xs rounded p-1 font-bold"><option value="CO">CO</option><option value="H2">H₂</option></select><select id="tempSel" class="w-full bg-gray-900 border text-white text-xs rounded p-1 font-bold mt-1"><option value="230-300">230-300 °C</option><option value="400-700">400-700 °C</option><option value=">700">&gt; 700 °C</option></select><button onclick="confirmAgentConfig()" class="w-full bg-monorail-blue text-black font-black text-xs py-1.5 rounded mt-1 font-gaming">Confirm</button>`;
+            } else {
+                container.innerHTML = `<select id="reagentSel" class="w-full bg-gray-900 border text-white text-xs rounded p-1 font-bold"><option value="O2">O₂</option><option value="steam">Steam (500°C)</option></select><button onclick="confirmAgentConfig()" class="w-full bg-monorail-orange text-black font-black text-xs py-1.5 rounded mt-2 font-gaming">Confirm</button>`;
+            }
+        }
+
+        function confirmAgentConfig() {
+            gameState.reagent = document.getElementById('reagentSel').value;
+            gameState.tempRange = document.getElementById('tempSel') ? document.getElementById('tempSel').value : null;
+            document.getElementById('predPlaceholder').classList.add('hidden');
+            document.getElementById('predOptions').classList.remove('hidden');
+        }
+
+        function submitPrediction(studentChoice) {
+            const actual = computeChemicalOutcome(gameState.selectedReactant, gameState.agentType, gameState.reagent, gameState.tempRange);
+            if(studentChoice === actual.product) {
+                audioFX.playCustomSound('success');
+                gameState.score += 25;
+                document.getElementById('scoreText').innerText = gameState.score;
+                showModal(true, "🔥 عالميييييي", actual.explanation, actual.equation);
+            } else {
+                audioFX.playCustomSound('error');
+                showModal(false, "خد صفرررررررررر ❌", `Correct product: ${actual.product}\n\n${actual.explanation}`, actual.equation);
+            }
+        }
+
+        function computeChemicalOutcome(reactant, agentType, reagent, temp) {
+            if(agentType === 'reducing') {
+                if(reactant === 'Fe2O3') {
+                    if(temp === '230-300') return { product: 'Fe3O4', explanation: 'Reduction at 230-300°C yields Fe₃O₄.', equation: '3Fe₂O₃ + CO --(230-300°C)--> 2Fe₃O₄ + CO₂' };
+                    if(temp === '400-700') return { product: 'FeO', explanation: 'Reduction at 400-700°C yields FeO.', equation: 'Fe₂O₃ + CO --(400-700°C)--> 2FeO + CO₂' };
+                    return { product: 'Fe', explanation: 'Reduction above 700°C yields Iron Fe.', equation: 'Fe₂O₃ + 3CO --(>700°C)--> 2Fe + 3CO₂' };
+                }
+                if(reactant === 'Fe3O4') {
+                    if(temp === '400-700') return { product: 'FeO', explanation: 'Reduction at 400-700°C yields FeO.', equation: 'Fe₃O₄ + CO --(400-700°C)--> 3FeO + CO₂' };
+                    if(temp === '>700') return { product: 'Fe', explanation: 'Reduction above 700°C yields Fe.', equation: 'Fe₃O₄ + 4CO --(>700°C)--> 3Fe + 4CO₂' };
+                    return { product: 'Fe3O4', explanation: 'Insufficient temperature.', equation: 'No reaction' };
+                }
+                return { product: 'Fe', explanation: 'FeO reduction yields Fe.', equation: 'FeO + CO --> Fe + CO₂' };
+            } else {
+                if(reactant === 'Fe') {
+                    if(reagent === 'steam') return { product: 'Fe3O4', explanation: 'Iron with steam at 500°C yields Fe₃O₄.', equation: '3Fe + 4H₂O --(500°C)--> Fe₃O₄ + 4H₂' };
+                    return { product: 'Fe3O4', explanation: 'Iron heated in air yields Fe₃O₄.', equation: '3Fe + 2O₂ --> Fe₃O₄' };
+                }
+                return { product: 'Fe2O3', explanation: 'Oxidation yields Fe₂O₃.', equation: '4FeO + O₂ --> 2Fe₂O₃' };
+            }
+        }
+
+        function showModal(isSuccess, bannerText, desc, eq) {
+            document.getElementById('resBanner').innerText = bannerText;
+            document.getElementById('resBanner').className = `text-3xl font-black mb-2 font-gaming py-2 rounded-xl ${isSuccess ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`;
+            document.getElementById('resDesc').innerText = desc;
+            document.getElementById('resEquation').innerText = eq;
+            document.getElementById('resultModal').classList.remove('hidden');
+            document.getElementById('resultModal').classList.add('flex');
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultModal').classList.add('hidden');
+            document.getElementById('resultModal').classList.remove('flex');
+            resetGameTurn();
+        }
+
+        function resetGameTurn() {
+            gameState.selectedReactant = null;
+            document.querySelectorAll('.card-btn').forEach(c => c.classList.remove('fn-card-selected'));
+            document.getElementById('reactantSlot').innerHTML = `<i class="fa-solid fa-download text-3xl text-gray-600 mb-1"></i><span class="text-xs text-gray-500 font-bold">Select card</span>`;
+            document.getElementById('typeBtns').classList.add('hidden');
+            document.getElementById('agentConfig').classList.add('hidden');
+            document.getElementById('predPlaceholder').classList.remove('hidden');
+            document.getElementById('predOptions').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
