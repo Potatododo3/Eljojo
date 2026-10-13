@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Monorail of Jojo - Iron Chemistry (Language Edition)</title>
+    <title>Monorail of Jojo - Iron Chemistry</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -25,10 +25,6 @@
                             panel: '#121824',
                             border: '#222d42'
                         }
-                    },
-                    fontFamily: {
-                        gaming: ['Teko', 'Cairo', 'sans-serif'],
-                        body: ['Cairo', 'sans-serif']
                     }
                 }
             }
@@ -40,6 +36,8 @@
             height: 100%;
             width: 100%;
             overflow: hidden;
+            margin: 0;
+            padding: 0;
             touch-action: manipulation;
         }
         body {
@@ -51,35 +49,32 @@
         }
         .font-gaming { font-family: 'Teko', 'Cairo', sans-serif; letter-spacing: 0.5px; }
         .bg-grid-pattern {
-            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-            background-size: 20px 20px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 15px 15px;
         }
-        .fn-card { transition: all 0.2s ease-in-out; cursor: pointer; }
-        .fn-card:hover { transform: translateY(-3px); filter: brightness(1.1); }
-        .fn-card-selected { border-color: #ffd000 !important; box-shadow: 0 0 15px rgba(255, 208, 0, 0.8) !important; }
+        .fn-card { transition: all 0.15s ease-in-out; cursor: pointer; }
+        .fn-card-selected { border-color: #ffd000 !important; box-shadow: 0 0 10px rgba(255, 208, 0, 0.8) !important; }
         @media screen and (orientation: portrait) { #portrait-warning { display: flex !important; } }
     </style>
 </head>
-<body class="bg-grid-pattern flex flex-col justify-between p-1.5 gap-1.5 h-screen w-screen overflow-hidden">
+<body class="bg-grid-pattern flex flex-col justify-between p-1 gap-1 h-screen w-screen overflow-hidden">
 
     <div id="portrait-warning" class="fixed inset-0 bg-black/95 z-[100] hidden flex-col items-center justify-center p-6 text-center backdrop-blur-md">
-        <i class="fa-solid fa-rotate text-5xl text-monorail-orange animate-spin mb-3"></i>
-        <h2 class="text-2xl font-black text-monorail-yellow mb-1 font-gaming">Rotate Device to Landscape</h2>
-        <p class="text-gray-300 text-xs">Please turn your screen horizontally to play Monorail of Jojo!</p>
+        <i class="fa-solid fa-rotate text-4xl text-monorail-orange animate-spin mb-2"></i>
+        <h2 class="text-xl font-black text-monorail-yellow mb-1 font-gaming">Rotate Device to Landscape</h2>
+        <p class="text-gray-300 text-xs">Please turn your screen horizontally to play!</p>
     </div>
 
     <script>
         const audioFX = {
             playCustomSound(type) {
                 let audioUrl = type === 'success' ? 'luxus.mp3' : 'zero.mp3';
-                if(audioUrl) {
-                    let audio = new Audio(audioUrl);
-                    audio.play().catch(() => {
-                        if(type === 'success') this.playFallbackSuccess();
-                        else this.playFallbackError();
-                    });
-                }
+                let audio = new Audio(audioUrl);
+                audio.play().catch(() => {
+                    if(type === 'success') this.playFallbackSuccess();
+                    else this.playFallbackError();
+                });
             },
             playFallbackSuccess() {
                 try {
@@ -115,145 +110,132 @@
     </script>
 
     <!-- Header -->
-    <header class="h-10 bg-monorail-panel border border-monorail-border rounded-lg px-2 flex items-center justify-between shadow-md shrink-0">
+    <header class="h-8 bg-monorail-panel border border-monorail-border rounded px-2 flex items-center justify-between shadow shrink-0">
         <div class="flex items-center gap-2">
-            <div class="bg-gradient-to-r from-monorail-orange to-monorail-yellow text-black px-2 py-0.5 rounded font-black font-gaming text-sm flex items-center gap-1.5">
-                <i class="fa-solid fa-train-subway text-xs"></i> Jojo Monorail
+            <div class="bg-gradient-to-r from-monorail-orange to-monorail-yellow text-black px-1.5 py-0.5 rounded font-black font-gaming text-xs flex items-center gap-1">
+                <i class="fa-solid fa-train-subway text-[10px]"></i> Jojo
             </div>
-            <div class="flex items-center gap-1 text-[10px] font-bold bg-black/60 px-2 py-0.5 rounded border border-gray-800">
+            <div class="flex items-center gap-1 text-[9px] font-bold bg-black/60 px-1.5 py-0.5 rounded border border-gray-800">
                 <span class="text-gray-400">XP:</span>
                 <span id="scoreText" class="text-monorail-yellow font-black text-xs font-gaming">0</span>
             </div>
         </div>
 
-        <div class="flex items-center gap-2">
-            <div class="bg-black/80 border border-gray-800 rounded p-0.5 flex items-center gap-0.5">
-                <button id="modeBtnOxRed" onclick="switchGameMode('oxred')" class="px-2 py-0.5 rounded text-[10px] font-black transition font-gaming bg-monorail-orange text-black">
-                    Ox & Red
-                </button>
-                <button id="modeBtnReactions" onclick="switchGameMode('reactions')" class="px-2 py-0.5 rounded text-[10px] font-black transition font-gaming text-gray-400">
-                    Reactions
-                </button>
-            </div>
-
-            <div id="stationsBar" class="hidden sm:flex items-center gap-1 bg-black/70 px-2 py-0.5 rounded border border-gray-800 text-[9px] font-bold">
-                <div id="st-1" class="px-1.5 py-0.5 rounded border border-gray-700 bg-gray-900 text-gray-300">Fe</div>
-                <div id="st-2" class="px-1.5 py-0.5 rounded border border-gray-700 bg-gray-900 text-gray-300">FeO</div>
-                <div id="st-3" class="px-1.5 py-0.5 rounded border border-gray-700 bg-gray-900 text-gray-300">Fe₃O₄</div>
-                <div id="st-4" class="px-1.5 py-0.5 rounded border border-gray-700 bg-gray-900 text-gray-300">Fe₂O₃</div>
-            </div>
-        </div>
-
         <div class="flex items-center gap-1">
-            <button onclick="resetGameTurn()" class="bg-gray-800 text-monorail-yellow border border-monorail-yellow/40 px-2 py-0.5 rounded text-[10px] font-bold">
-                <i class="fa-solid fa-rotate"></i>
-            </button>
+            <div class="bg-black/80 border border-gray-800 rounded p-0.5 flex items-center gap-0.5">
+                <button id="modeBtnOxRed" onclick="switchGameMode('oxred')" class="px-2 py-0.5 rounded text-[9px] font-black font-gaming bg-monorail-orange text-black">Ox & Red</button>
+                <button id="modeBtnReactions" onclick="switchGameMode('reactions')" class="px-2 py-0.5 rounded text-[9px] font-black font-gaming text-gray-400">Reactions</button>
+            </div>
         </div>
+
+        <button onclick="resetGameTurn()" class="bg-gray-800 text-monorail-yellow border border-monorail-yellow/40 px-1.5 py-0.5 rounded text-[9px]">
+            <i class="fa-solid fa-rotate"></i>
+        </button>
     </header>
 
-    <!-- Main Container -->
-    <main class="flex-1 bg-monorail-panel border border-monorail-border rounded-lg p-2 flex flex-col justify-between overflow-hidden relative min-h-0">
+    <!-- Main Arena -->
+    <main class="flex-1 bg-monorail-panel border border-monorail-border rounded p-1.5 flex flex-col justify-between overflow-hidden relative min-h-0">
         
-        <div id="stepBanner" class="bg-black/80 border border-monorail-yellow/40 rounded-lg py-1 px-2 text-center text-[11px] font-bold text-monorail-yellow shrink-0">
+        <div id="stepBanner" class="bg-black/80 border border-monorail-yellow/40 rounded py-0.5 px-2 text-center text-[10px] font-bold text-monorail-yellow shrink-0">
             <span id="stepText">Step 1: Select an Iron Compound Card below</span>
         </div>
 
-        <!-- Mode 1 Arena -->
-        <div id="oxredArena" class="flex-1 my-1 grid grid-cols-3 gap-2 items-center min-h-0">
+        <!-- Mode 1 -->
+        <div id="oxredArena" class="flex-1 my-1 grid grid-cols-3 gap-1.5 items-center min-h-0">
             <!-- Slot 1 -->
             <div class="flex flex-col items-center h-full justify-center">
-                <span class="text-[9px] text-gray-400 mb-0.5 font-bold">Reactant:</span>
-                <div id="reactantSlot" class="w-full h-full max-h-24 bg-black/50 border border-dashed border-gray-700 rounded-lg flex flex-col items-center justify-center p-1 text-center">
-                    <i class="fa-solid fa-download text-lg text-gray-600 mb-0.5"></i>
-                    <span class="text-[9px] text-gray-400">Select card</span>
+                <span class="text-[8px] text-gray-400 mb-0.5 font-bold">Reactant:</span>
+                <div id="reactantSlot" class="w-full h-full max-h-16 bg-black/50 border border-dashed border-gray-700 rounded flex flex-col items-center justify-center p-1 text-center">
+                    <i class="fa-solid fa-download text-sm text-gray-600 mb-0.5"></i>
+                    <span class="text-[8px] text-gray-400">Select card</span>
                 </div>
             </div>
 
             <!-- Slot 2 -->
             <div class="flex flex-col items-center h-full justify-center">
-                <span class="text-[9px] text-monorail-orange mb-0.5 font-bold">Weapon:</span>
-                <div id="agentZone" class="w-full h-full max-h-24 bg-black/50 border border-dashed border-gray-700 rounded-lg p-1 flex flex-col items-center justify-center text-center">
-                    <div id="typeBtns" class="flex flex-col gap-1 w-full hidden">
-                        <button onclick="handleChooseType('reducing')" class="w-full bg-monorail-blue text-black font-black text-[10px] py-1 rounded font-gaming">REDUCING ⚡</button>
-                        <button onclick="handleChooseType('oxidizing')" class="w-full bg-monorail-orange text-black font-black text-[10px] py-1 rounded font-gaming">OXIDIZING 🔥</button>
+                <span class="text-[8px] text-monorail-orange mb-0.5 font-bold">Weapon:</span>
+                <div id="agentZone" class="w-full h-full max-h-16 bg-black/50 border border-dashed border-gray-700 rounded p-1 flex flex-col items-center justify-center text-center">
+                    <div id="typeBtns" class="flex flex-col gap-0.5 w-full hidden">
+                        <button onclick="handleChooseType('reducing')" class="w-full bg-monorail-blue text-black font-black text-[9px] py-0.5 rounded font-gaming">REDUCING ⚡</button>
+                        <button onclick="handleChooseType('oxidizing')" class="w-full bg-monorail-orange text-black font-black text-[9px] py-0.5 rounded font-gaming">OXIDIZING 🔥</button>
                     </div>
-                    <div id="agentConfig" class="w-full hidden text-center space-y-1"></div>
+                    <div id="agentConfig" class="w-full hidden text-center space-y-0.5"></div>
                 </div>
             </div>
 
             <!-- Slot 3 -->
             <div class="flex flex-col items-center h-full justify-center">
-                <span class="text-[9px] text-monorail-yellow mb-0.5 font-bold">Product:</span>
-                <div id="predictionSlot" class="w-full h-full max-h-24 bg-black/50 border border-dashed border-monorail-yellow/30 rounded-lg p-1 flex flex-col items-center justify-center text-center">
-                    <div id="predPlaceholder" class="text-[9px] text-gray-500">
-                        <i class="fa-solid fa-circle-question text-lg text-monorail-yellow/40 mb-0.5"></i>
+                <span class="text-[8px] text-monorail-yellow mb-0.5 font-bold">Product:</span>
+                <div id="predictionSlot" class="w-full h-full max-h-16 bg-black/50 border border-dashed border-monorail-yellow/30 rounded p-1 flex flex-col items-center justify-center text-center">
+                    <div id="predPlaceholder" class="text-[8px] text-gray-500">
+                        <i class="fa-solid fa-circle-question text-sm text-monorail-yellow/40 mb-0.5"></i>
                         <p>Select weapon</p>
                     </div>
                     <div id="predOptions" class="grid grid-cols-2 gap-1 w-full hidden">
-                        <button onclick="submitPrediction('Fe')" class="bg-gray-800 text-white font-black py-1 rounded text-[10px] font-gaming">Fe</button>
-                        <button onclick="submitPrediction('FeO')" class="bg-gray-800 text-white font-black py-1 rounded text-[10px] font-gaming">FeO</button>
-                        <button onclick="submitPrediction('Fe3O4')" class="bg-gray-800 text-white font-black py-1 rounded text-[10px] font-gaming">Fe₃O₄</button>
-                        <button onclick="submitPrediction('Fe2O3')" class="bg-gray-800 text-white font-black py-1 rounded text-[10px] font-gaming">Fe₂O₃</button>
+                        <button onclick="submitPrediction('Fe')" class="bg-gray-800 text-white font-black py-0.5 rounded text-[9px] font-gaming">Fe</button>
+                        <button onclick="submitPrediction('FeO')" class="bg-gray-800 text-white font-black py-0.5 rounded text-[9px] font-gaming">FeO</button>
+                        <button onclick="submitPrediction('Fe3O4')" class="bg-gray-800 text-white font-black py-0.5 rounded text-[9px] font-gaming">Fe₃O₄</button>
+                        <button onclick="submitPrediction('Fe2O3')" class="bg-gray-800 text-white font-black py-0.5 rounded text-[9px] font-gaming">Fe₂O₃</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Mode 2 Arena -->
+        <!-- Mode 2 -->
         <div id="reactionsArena" class="flex-1 my-1 flex flex-col items-center justify-center hidden">
-            <h3 class="text-sm font-black text-monorail-yellow font-gaming">🧪 Iron Reactions Map</h3>
-            <p class="text-[10px] text-gray-400">Click any card below to view pathways!</p>
+            <h3 class="text-xs font-black text-monorail-yellow font-gaming">🧪 Iron Reactions Map</h3>
+            <p class="text-[9px] text-gray-400">Click any card below to view pathways!</p>
         </div>
 
         <!-- Cards Tray -->
-        <div class="shrink-0 pt-1">
-            <div class="grid grid-cols-4 gap-1.5">
-                <div id="card-Fe" data-symbol="Fe" data-station="1" data-name="Iron (Fe)" class="card-btn fn-card bg-black border border-orange-500/80 rounded-lg p-1 text-center">
-                    <span class="text-[8px] text-orange-400 block">St 1</span>
-                    <h4 class="font-black text-xs text-white font-gaming">Fe</h4>
+        <div class="shrink-0 pt-0.5">
+            <div class="grid grid-cols-4 gap-1">
+                <div id="card-Fe" data-symbol="Fe" data-station="1" data-name="Iron (Fe)" class="card-btn fn-card bg-black border border-orange-500/80 rounded p-1 text-center">
+                    <span class="text-[7px] text-orange-400 block">St 1</span>
+                    <h4 class="font-black text-[11px] text-white font-gaming">Fe</h4>
                 </div>
-                <div id="card-FeO" data-symbol="FeO" data-station="2" data-name="Iron(II) Oxide" class="card-btn fn-card bg-black border border-amber-500/80 rounded-lg p-1 text-center">
-                    <span class="text-[8px] text-amber-400 block">St 2</span>
-                    <h4 class="font-black text-xs text-white font-gaming">FeO</h4>
+                <div id="card-FeO" data-symbol="FeO" data-station="2" data-name="Iron(II) Oxide" class="card-btn fn-card bg-black border border-amber-500/80 rounded p-1 text-center">
+                    <span class="text-[7px] text-amber-400 block">St 2</span>
+                    <h4 class="font-black text-[11px] text-white font-gaming">FeO</h4>
                 </div>
-                <div id="card-Fe3O4" data-symbol="Fe3O4" data-station="3" data-name="Fe₃O₄ Oxide" class="card-btn fn-card bg-black border border-cyan-500/80 rounded-lg p-1 text-center">
-                    <span class="text-[8px] text-cyan-400 block">St 3</span>
-                    <h4 class="font-black text-xs text-white font-gaming">Fe₃O₄</h4>
+                <div id="card-Fe3O4" data-symbol="Fe3O4" data-station="3" data-name="Fe₃O₄ Oxide" class="card-btn fn-card bg-black border border-cyan-500/80 rounded p-1 text-center">
+                    <span class="text-[7px] text-cyan-400 block">St 3</span>
+                    <h4 class="font-black text-[11px] text-white font-gaming">Fe₃O₄</h4>
                 </div>
-                <div id="card-Fe2O3" data-symbol="Fe2O3" data-station="4" data-name="Iron(III) Oxide" class="card-btn fn-card bg-black border border-purple-500/80 rounded-lg p-1 text-center">
-                    <span class="text-[8px] text-purple-400 block">St 4</span>
-                    <h4 class="font-black text-xs text-white font-gaming">Fe₂O₃</h4>
+                <div id="card-Fe2O3" data-symbol="Fe2O3" data-station="4" data-name="Iron(III) Oxide" class="card-btn fn-card bg-black border border-purple-500/80 rounded p-1 text-center">
+                    <span class="text-[7px] text-purple-400 block">St 4</span>
+                    <h4 class="font-black text-[11px] text-white font-gaming">Fe₂O₃</h4>
                 </div>
             </div>
         </div>
     </main>
 
     <!-- Modals -->
-    <div id="reactChoiceModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-3">
-        <div class="bg-monorail-panel border border-monorail-yellow rounded-xl max-w-xs w-full p-3 text-center">
-            <h3 id="reactModalTitle" class="text-base font-black text-monorail-yellow font-gaming mb-2">Select Pathway</h3>
-            <div class="grid grid-cols-2 gap-2 mb-2">
-                <button onclick="displayReactData('prep')" class="bg-monorail-orange text-black font-black py-2 rounded text-xs font-gaming">Preparation</button>
-                <button onclick="displayReactData('use')" class="bg-monorail-blue text-black font-black py-2 rounded text-xs font-gaming">Uses</button>
+    <div id="reactChoiceModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-2">
+        <div class="bg-monorail-panel border border-monorail-yellow rounded-lg max-w-xs w-full p-2.5 text-center">
+            <h3 id="reactModalTitle" class="text-sm font-black text-monorail-yellow font-gaming mb-1.5">Select Pathway</h3>
+            <div class="grid grid-cols-2 gap-1.5 mb-1.5">
+                <button onclick="displayReactData('prep')" class="bg-monorail-orange text-black font-black py-1.5 rounded text-[10px] font-gaming">Preparation</button>
+                <button onclick="displayReactData('use')" class="bg-monorail-blue text-black font-black py-1.5 rounded text-[10px] font-gaming">Uses</button>
             </div>
-            <button onclick="closeReactModal()" class="w-full bg-gray-800 text-white font-bold py-1 rounded text-xs">Close</button>
+            <button onclick="closeReactModal()" class="w-full bg-gray-800 text-white font-bold py-1 rounded text-[10px]">Close</button>
         </div>
     </div>
 
-    <div id="reactResultModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-3">
-        <div class="bg-monorail-panel border border-monorail-blue rounded-xl max-w-sm w-full p-3 text-left">
-            <h3 id="reactResultTitle" class="text-sm font-black text-monorail-blue font-gaming mb-2">Equations</h3>
-            <div id="reactResultContent" class="space-y-1.5 max-h-48 overflow-y-auto text-[10px] text-gray-200"></div>
-            <button onclick="closeReactResultModal()" class="w-full mt-2 bg-monorail-blue text-black font-black py-1.5 rounded text-xs font-gaming">Done 🚀</button>
+    <div id="reactResultModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-2">
+        <div class="bg-monorail-panel border border-monorail-blue rounded-lg max-w-xs w-full p-2.5 text-left">
+            <h3 id="reactResultTitle" class="text-xs font-black text-monorail-blue font-gaming mb-1">Equations</h3>
+            <div id="reactResultContent" class="space-y-1 max-h-36 overflow-y-auto text-[9px] text-gray-200"></div>
+            <button onclick="closeReactResultModal()" class="w-full mt-1.5 bg-monorail-blue text-black font-black py-1 rounded text-[10px] font-gaming">Done 🚀</button>
         </div>
     </div>
 
-    <div id="resultModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-3">
-        <div id="resultBox" class="bg-monorail-panel border border-monorail-orange rounded-xl max-w-xs w-full p-3 text-center">
-            <div id="resBanner" class="text-xl font-black mb-1 font-gaming py-1 rounded-lg"></div>
-            <div id="resDesc" class="text-[10px] text-gray-200 bg-black/60 p-2 rounded my-2"></div>
-            <div id="resEquation" class="bg-gray-900 text-monorail-yellow font-mono text-[10px] p-2 rounded mb-2"></div>
-            <button onclick="closeResultModal()" class="w-full bg-monorail-orange text-black font-black py-1.5 rounded text-xs font-gaming">Next 🚀</button>
+    <div id="resultModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-2">
+        <div id="resultBox" class="bg-monorail-panel border border-monorail-orange rounded-lg max-w-xs w-full p-2.5 text-center">
+            <div id="resBanner" class="text-base font-black mb-1 font-gaming py-0.5 rounded"></div>
+            <div id="resDesc" class="text-[9px] text-gray-200 bg-black/60 p-1.5 rounded my-1"></div>
+            <div id="resEquation" class="bg-gray-900 text-monorail-yellow font-mono text-[9px] p-1.5 rounded mb-1.5"></div>
+            <button onclick="closeResultModal()" class="w-full bg-monorail-orange text-black font-black py-1 rounded text-[10px] font-gaming">Next 🚀</button>
         </div>
     </div>
 
@@ -319,7 +301,7 @@
             const data = reactionsMapData[gameState.activeCompoundForReact];
             if(!data) return;
             document.getElementById('reactResultTitle').innerText = data.name + (actionType === 'prep' ? ' (Prep)' : ' (Uses)');
-            document.getElementById('reactResultContent').innerHTML = data[actionType].map(eq => `<div class="bg-black/80 p-2 rounded border border-gray-800 font-mono text-[10px] text-monorail-yellow mb-1">${eq}</div>`).join('');
+            document.getElementById('reactResultContent').innerHTML = data[actionType].map(eq => `<div class="bg-black/80 p-1.5 rounded border border-gray-800 font-mono text-[9px] text-monorail-yellow mb-1">${eq}</div>`).join('');
             document.getElementById('reactResultModal').classList.remove('hidden');
             document.getElementById('reactResultModal').classList.add('flex');
         }
@@ -335,7 +317,7 @@
             document.getElementById(`card-${symbol}`).classList.add('fn-card-selected');
             
             const slot = document.getElementById('reactantSlot');
-            slot.innerHTML = `<span class="text-[8px] bg-monorail-orange text-black font-black px-1 rounded font-gaming">St ${stationNum}</span><span class="text-xl font-black text-white font-gaming">${symbol}</span>`;
+            slot.innerHTML = `<span class="text-[7px] bg-monorail-orange text-black font-black px-1 rounded font-gaming">St ${stationNum}</span><span class="text-base font-black text-white font-gaming">${symbol}</span>`;
             document.getElementById('typeBtns').classList.remove('hidden');
             document.getElementById('predPlaceholder').classList.remove('hidden');
             document.getElementById('predOptions').classList.add('hidden');
@@ -347,9 +329,9 @@
             const container = document.getElementById('agentConfig');
             container.classList.remove('hidden');
             if(type === 'reducing') {
-                container.innerHTML = `<select id="reagentSel" class="w-full bg-gray-900 border text-white text-[10px] rounded p-0.5"><option value="CO">CO</option><option value="H2">H₂</option></select><select id="tempSel" class="w-full bg-gray-900 border text-white text-[10px] rounded p-0.5"><option value="230-300">230-300°C</option><option value="400-700">400-700°C</option><option value=">700">&gt;700°C</option></select><button onclick="confirmAgentConfig()" class="w-full bg-monorail-blue text-black font-black text-[10px] py-0.5 rounded font-gaming">Confirm</button>`;
+                container.innerHTML = `<select id="reagentSel" class="w-full bg-gray-900 border text-white text-[9px] rounded p-0.5"><option value="CO">CO</option><option value="H2">H₂</option></select><select id="tempSel" class="w-full bg-gray-900 border text-white text-[9px] rounded p-0.5"><option value="230-300">230-300°C</option><option value="400-700">400-700°C</option><option value=">700">&gt;700°C</option></select><button onclick="confirmAgentConfig()" class="w-full bg-monorail-blue text-black font-black text-[9px] py-0.5 rounded font-gaming">Confirm</button>`;
             } else {
-                container.innerHTML = `<select id="reagentSel" class="w-full bg-gray-900 border text-white text-[10px] rounded p-0.5"><option value="O2">O₂</option><option value="steam">Steam (500°C)</option></select><button onclick="confirmAgentConfig()" class="w-full bg-monorail-orange text-black font-black text-[10px] py-1 rounded font-gaming">Confirm</button>`;
+                container.innerHTML = `<select id="reagentSel" class="w-full bg-gray-900 border text-white text-[9px] rounded p-0.5"><option value="O2">O₂</option><option value="steam">Steam (500°C)</option></select><button onclick="confirmAgentConfig()" class="w-full bg-monorail-orange text-black font-black text-[9px] py-0.5 rounded font-gaming">Confirm</button>`;
             }
         }
 
@@ -397,7 +379,7 @@
 
         function showModal(isSuccess, bannerText, desc, eq) {
             document.getElementById('resBanner').innerText = bannerText;
-            document.getElementById('resBanner').className = `text-lg font-black mb-1 font-gaming py-1 rounded ${isSuccess ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`;
+            document.getElementById('resBanner').className = `text-sm font-black mb-1 font-gaming py-0.5 rounded ${isSuccess ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`;
             document.getElementById('resDesc').innerText = desc;
             document.getElementById('resEquation').innerText = eq;
             document.getElementById('resultModal').classList.remove('hidden');
@@ -413,7 +395,7 @@
         function resetGameTurn() {
             gameState.selectedReactant = null;
             document.querySelectorAll('.card-btn').forEach(c => c.classList.remove('fn-card-selected'));
-            document.getElementById('reactantSlot').innerHTML = `<i class="fa-solid fa-download text-lg text-gray-600 mb-0.5"></i><span class="text-[9px] text-gray-400">Select card</span>`;
+            document.getElementById('reactantSlot').innerHTML = `<i class="fa-solid fa-download text-sm text-gray-600 mb-0.5"></i><span class="text-[8px] text-gray-400">Select card</span>`;
             document.getElementById('typeBtns').classList.add('hidden');
             document.getElementById('agentConfig').classList.add('hidden');
             document.getElementById('predPlaceholder').classList.remove('hidden');
